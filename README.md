@@ -1,81 +1,81 @@
 # Demo Service - Production-Ready Go CRUD Application
 
-Production-ready Go приложение с CRUD операциями для управления продуктами, включающее JWT аутентификацию, Prometheus метрики, Swagger документацию, rate limiting и структурированное логирование.
+Production-ready Go application with CRUD operations for product management, including JWT authentication, Prometheus metrics, Swagger documentation, rate limiting, and structured logging.
 
-## Возможности
+## Features
 
-- ✅ REST API для CRUD операций с продуктами
-- ✅ JWT аутентификация
-- ✅ Prometheus метрики
-- ✅ Swagger/OpenAPI документация
+- ✅ REST API for CRUD operations with products
+- ✅ JWT authentication
+- ✅ Prometheus metrics
+- ✅ Swagger/OpenAPI documentation
 - ✅ Rate limiting
-- ✅ Структурированное логирование
-- ✅ Embedded SQLite база данных
+- ✅ Structured logging
+- ✅ Embedded SQLite database
 - ✅ Graceful shutdown
 - ✅ Health check endpoints
 
-## Требования
+## Requirements
 
-- Go 1.21 или выше
+- Go 1.21 or higher
 - Linux/Windows/macOS
 
-## Установка и запуск
+## Installation and Running
 
-### 1. Клонирование и установка зависимостей
+### 1. Clone and Install Dependencies
 
 ```bash
 go mod download
 ```
 
-### 2. Настройка конфигурации
+### 2. Configure Settings
 
-Скопируйте `.env.example` в `.env` и настройте параметры:
+Copy `.env.example` to `.env` and configure parameters:
 
 ```bash
 cp .env.example .env
 ```
 
-Отредактируйте `.env` файл, особенно `JWT_SECRET` для продакшена.
+Edit the `.env` file, especially `JWT_SECRET` for production.
 
-### 3. Запуск приложения
+### 3. Run the Application
 
 ```bash
 go run cmd/server/main.go
 ```
 
-Или скомпилируйте и запустите:
+Or compile and run:
 
 ```bash
 go build -o demo-service cmd/server/main.go
 ./demo-service
 ```
 
-Приложение будет доступно на `http://localhost:8080` (или порт, указанный в `SERVER_PORT`).
+The application will be available at `http://localhost:8080` (or the port specified in `SERVER_PORT`).
 
 ## API Endpoints
 
-### Аутентификация
+### Authentication
 
-- `POST /api/v1/auth/register` - Регистрация нового пользователя
-- `POST /api/v1/auth/login` - Вход в систему (возвращает JWT токен)
+- `POST /api/v1/auth/register` - Register a new user
+- `POST /api/v1/auth/login` - Login (returns JWT token)
 
-### Продукты (требуют JWT токен)
+### Products (require JWT token)
 
-- `POST /api/v1/products` - Создание продукта
-- `GET /api/v1/products` - Список продуктов (с пагинацией)
-- `GET /api/v1/products/:id` - Получение продукта по ID
-- `PUT /api/v1/products/:id` - Обновление продукта
-- `DELETE /api/v1/products/:id` - Удаление продукта
+- `POST /api/v1/products` - Create a product
+- `GET /api/v1/products` - List products (with pagination)
+- `GET /api/v1/products/:id` - Get product by ID
+- `PUT /api/v1/products/:id` - Update product
+- `DELETE /api/v1/products/:id` - Delete product
 
-### Системные
+### System
 
 - `GET /health` - Health check
 - `GET /metrics` - Prometheus метрики
 - `GET /swagger/index.html` - Swagger UI
 
-## Использование API
+## API Usage
 
-### 1. Регистрация пользователя
+### 1. User Registration
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/auth/register \
@@ -86,7 +86,7 @@ curl -X POST http://localhost:8080/api/v1/auth/register \
   }'
 ```
 
-### 2. Вход и получение токена
+### 2. Login and Get Token
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/auth/login \
@@ -97,9 +97,9 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
   }'
 ```
 
-Ответ содержит `token` - используйте его в заголовке `Authorization: Bearer <token>`.
+Response contains `token` - use it in the header `Authorization: Bearer <token>`.
 
-### 3. Создание продукта
+### 3. Create Product
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/products \
@@ -113,39 +113,39 @@ curl -X POST http://localhost:8080/api/v1/products \
   }'
 ```
 
-### 4. Получение списка продуктов
+### 4. Get Product List
 
 ```bash
 curl -X GET "http://localhost:8080/api/v1/products?page=1&limit=10" \
   -H "Authorization: Bearer <your-token>"
 ```
 
-## Деплой на AWS EC2
+## Deploy to AWS EC2
 
-### 1. Подготовка EC2 инстанса
+### 1. Prepare EC2 Instance
 
 ```bash
-# Обновление системы (Ubuntu/Debian)
+# Update system (Ubuntu/Debian)
 sudo apt update && sudo apt upgrade -y
 
-# Установка Go
+# Install Go
 wget https://go.dev/dl/go1.21.5.linux-amd64.tar.gz
 sudo tar -C /usr/local -xzf go1.21.5.linux-amd64.tar.gz
 export PATH=$PATH:/usr/local/go/bin
 echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
 
-# Создание директории для приложения
+# Create application directory
 mkdir -p /opt/demo-service
 ```
 
-### 2. Копирование файлов на сервер
+### 2. Copy Files to Server
 
 ```bash
-# С вашего локального компьютера
+# From your local computer
 scp -r . user@your-ec2-ip:/opt/demo-service/
 ```
 
-### 3. Компиляция на сервере
+### 3. Compile on Server
 
 ```bash
 cd /opt/demo-service
@@ -153,9 +153,9 @@ go mod download
 go build -o demo-service cmd/server/main.go
 ```
 
-### 4. Создание systemd service
+### 4. Create systemd Service
 
-Создайте файл `/etc/systemd/system/demo-service.service`:
+Create file `/etc/systemd/system/demo-service.service`:
 
 ```ini
 [Unit]
@@ -175,7 +175,7 @@ RestartSec=5
 WantedBy=multi-user.target
 ```
 
-### 5. Запуск сервиса
+### 5. Start Service
 
 ```bash
 sudo systemctl daemon-reload
@@ -184,9 +184,9 @@ sudo systemctl start demo-service
 sudo systemctl status demo-service
 ```
 
-### 6. Настройка Nginx (опционально)
+### 6. Configure Nginx (optional)
 
-Создайте `/etc/nginx/sites-available/demo-service`:
+Create `/etc/nginx/sites-available/demo-service`:
 
 ```nginx
 server {
@@ -203,7 +203,7 @@ server {
 }
 ```
 
-Активируйте конфигурацию:
+Activate configuration:
 
 ```bash
 sudo ln -s /etc/nginx/sites-available/demo-service /etc/nginx/sites-enabled/
@@ -211,19 +211,19 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-### 7. Настройка Security Group
+### 7. Configure Security Group
 
-Убедитесь, что в Security Group EC2 открыты порты:
+Make sure the following ports are open in the EC2 Security Group:
 - 22 (SSH)
-- 80 (HTTP, если используете Nginx)
-- 443 (HTTPS, если используете SSL)
-- 8080 (если обращаетесь напрямую к приложению)
+- 80 (HTTP, if using Nginx)
+- 443 (HTTPS, if using SSL)
+- 8080 (if accessing application directly)
 
-## Мониторинг
+## Monitoring
 
-### Prometheus метрики
+### Prometheus Metrics
 
-Метрики доступны на `/metrics` endpoint. Вы можете настроить Prometheus для сбора метрик:
+Metrics are available at `/metrics` endpoint. You can configure Prometheus to collect metrics:
 
 ```yaml
 scrape_configs:
@@ -232,62 +232,62 @@ scrape_configs:
       - targets: ['localhost:8080']
 ```
 
-### Логи
+### Logs
 
-Логи приложения можно просмотреть через systemd:
+Application logs can be viewed through systemd:
 
 ```bash
 sudo journalctl -u demo-service -f
 ```
 
-Или если запускаете напрямую, логи выводятся в stdout/stderr.
+Or if running directly, logs are output to stdout/stderr.
 
-## Переменные окружения
+## Environment Variables
 
-| Переменная | Описание | По умолчанию |
-|------------|----------|--------------|
-| `SERVER_PORT` | Порт HTTP сервера | 8080 |
-| `DB_PATH` | Путь к SQLite файлу | ./data/demo.db |
-| `JWT_SECRET` | Секретный ключ для JWT | (обязательно) |
-| `JWT_EXPIRY` | Время жизни JWT токена | 24h |
-| `RATE_LIMIT_RPS` | Запросов в секунду | 10 |
-| `LOG_LEVEL` | Уровень логирования (debug, info, warn, error) | info |
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `SERVER_PORT` | HTTP server port | 8080 |
+| `DB_PATH` | Path to SQLite file | ./data/demo.db |
+| `JWT_SECRET` | Secret key for JWT | (required) |
+| `JWT_EXPIRY` | JWT token lifetime | 24h |
+| `RATE_LIMIT_RPS` | Requests per second | 10 |
+| `LOG_LEVEL` | Logging level (debug, info, warn, error) | info |
 
-## Структура проекта
+## Project Structure
 
 ```
 demo-service/
-├── cmd/server/main.go          # Точка входа
+├── cmd/server/main.go          # Entry point
 ├── internal/
-│   ├── config/                 # Конфигурация
+│   ├── config/                 # Configuration
 │   ├── handler/                # HTTP handlers
-│   ├── service/                # Бизнес-логика
-│   ├── repository/             # Работа с БД
-│   ├── model/                  # Модели данных
+│   ├── service/                # Business logic
+│   ├── repository/             # Database operations
+│   ├── model/                  # Data models
 │   ├── middleware/             # Middleware
-│   ├── metrics/                # Prometheus метрики
-│   └── database/               # Инициализация БД
-├── pkg/jwt/                    # JWT утилиты
-├── migrations/                 # SQL миграции
-└── docs/                       # Swagger документация
+│   ├── metrics/                # Prometheus metrics
+│   └── database/               # Database initialization
+├── pkg/jwt/                    # JWT utilities
+├── migrations/                 # SQL migrations
+└── docs/                       # Swagger documentation
 ```
 
-## Разработка
+## Development
 
-### Генерация Swagger документации
+### Generate Swagger Documentation
 
 ```bash
 go install github.com/swaggo/swag/cmd/swag@latest
 swag init -g cmd/server/main.go
 ```
 
-### Запуск тестов
+### Run Tests
 
 ```bash
 go test ./...
 ```
 
-## Лицензия
+## License
 
 MIT
 
