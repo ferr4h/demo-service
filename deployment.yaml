@@ -24,8 +24,8 @@ spec:
         env:
         - name: SERVER_PORT
           value: "8080"
-        - name: DB_PATH
-          value: "/app/data/demo.db"
+        - name: DATABASE_URL
+          value: "postgres://demo:demo@postgres:5432/demo?sslmode=disable"
         - name: JWT_SECRET
           value: your-super-secret-jwt-key-change-in-production
         - name: JWT_EXPIRY
@@ -55,13 +55,6 @@ spec:
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
-        volumeMounts:
-        - name: db-storage
-          mountPath: /app/data
-      volumes:
-      - name: db-storage
-        persistentVolumeClaim:
-          claimName: demo-service-db-pvc
 ---
 apiVersion: v1
 kind: Service
@@ -78,14 +71,3 @@ spec:
     targetPort: 8080
     protocol: TCP
   type: LoadBalancer
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: demo-service-db-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi

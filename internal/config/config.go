@@ -9,13 +9,13 @@ import (
 )
 
 type Config struct {
-	ServerPort   string
-	DBPath       string
-	JWTSecret    string
-	JWTExpiry    time.Duration
-	RateLimitRPS int
-	LogLevel     string
-	LogFormat    string
+	ServerPort    string
+	DatabaseURL   string
+	JWTSecret     string
+	JWTExpiry     time.Duration
+	RateLimitRPS  int
+	LogLevel      string
+	LogFormat     string
 }
 
 var AppConfig *Config
@@ -24,13 +24,13 @@ func Load() error {
 	_ = godotenv.Load()
 
 	AppConfig = &Config{
-		ServerPort:   getEnv("SERVER_PORT", "8080"),
-		DBPath:       getEnv("DB_PATH", "./data/demo.db"),
-		JWTSecret:    getEnv("JWT_SECRET", "1"),
-		JWTExpiry:    parseDuration(getEnv("JWT_EXPIRY", "24h")),
-		RateLimitRPS: parseInt(getEnv("RATE_LIMIT_RPS", "10")),
-		LogLevel:     getEnv("LOG_LEVEL", "info"),
-		LogFormat:    getEnv("LOG_FORMAT", "text"),
+		ServerPort:    getEnv("SERVER_PORT", "8080"),
+		DatabaseURL:   getEnv("DATABASE_URL", "postgres://demo:demo@localhost:5432/demo?sslmode=disable"),
+		JWTSecret:     getEnv("JWT_SECRET", "1"),
+		JWTExpiry:     parseDuration(getEnv("JWT_EXPIRY", "24h")),
+		RateLimitRPS:  parseInt(getEnv("RATE_LIMIT_RPS", "10")),
+		LogLevel:      getEnv("LOG_LEVEL", "info"),
+		LogFormat:     getEnv("LOG_FORMAT", "text"),
 	}
 
 	return nil
@@ -58,3 +58,6 @@ func parseDuration(s string) time.Duration {
 	}
 	return duration
 }
+
+
+

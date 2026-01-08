@@ -1,6 +1,6 @@
 # Demo Service - Production-Ready Go CRUD Application
 
-Production-ready Go application with CRUD operations for product management, including JWT authentication, Prometheus metrics, Swagger documentation, rate limiting, and structured logging.
+Production-ready Go application with CRUD operations for product management, including JWT authentication, Prometheus metrics, Swagger documentation, rate limiting, and structured logging. Now uses PostgreSQL database.
 
 ## Features
 
@@ -10,47 +10,96 @@ Production-ready Go application with CRUD operations for product management, inc
 - ✅ Swagger/OpenAPI documentation
 - ✅ Rate limiting
 - ✅ Structured logging
-- ✅ Embedded SQLite database
+- ✅ PostgreSQL database
+- ✅ Docker & Docker Compose support
+- ✅ Kubernetes deployment
 - ✅ Graceful shutdown
 - ✅ Health check endpoints
 
 ## Requirements
 
 - Go 1.21 or higher
-- Linux/Windows/macOS
+- Docker & Docker Compose (for containerized deployment)
+- Kubernetes cluster (for Kubernetes deployment)
+- PostgreSQL (when running locally without Docker)
 
 ## Installation and Running
 
-### 1. Clone and Install Dependencies
+### Option 1: Docker Compose (Recommended for Development)
+
+#### 1. Clone Repository
+
+```bash
+git clone <your-repo-url>
+cd demo-service
+```
+
+#### 2. Start with Docker Compose
+
+```bash
+docker-compose up -d
+```
+
+This will start:
+- PostgreSQL database on port 5432
+- Demo service on port 8080
+
+#### 3. Access the Application
+
+The application will be available at `http://localhost:8080`
+
+### Option 2: Local Development
+
+#### 1. Start PostgreSQL
+
+You can use Docker to run PostgreSQL locally:
+
+```bash
+docker run -d \
+  --name postgres-demo \
+  -e POSTGRES_DB=demo \
+  -e POSTGRES_USER=demo \
+  -e POSTGRES_PASSWORD=demo \
+  -p 5432:5432 \
+  postgres:15-alpine
+```
+
+#### 2. Configure Environment
+
+Create `.env` file:
+
+```bash
+# Server Configuration
+SERVER_PORT=8080
+
+# Database Configuration (PostgreSQL)
+DATABASE_URL=postgres://demo:demo@localhost:5432/demo?sslmode=disable
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-change-in-production
+JWT_EXPIRY=24h
+
+# Rate Limiting
+RATE_LIMIT_RPS=10
+
+# Logging Configuration
+LOG_LEVEL=info
+LOG_FORMAT=text
+```
+
+#### 3. Install Dependencies and Run
 
 ```bash
 go mod download
-```
-
-### 2. Configure Settings
-
-Copy `.env.example` to `.env` and configure parameters:
-
-```bash
-cp .env.example .env
-```
-
-Edit the `.env` file, especially `JWT_SECRET` for production.
-
-### 3. Run the Application
-
-```bash
 go run cmd/server/main.go
 ```
 
-Or compile and run:
+### Option 3: Build and Run Binary
 
 ```bash
 go build -o demo-service cmd/server/main.go
 ./demo-service
 ```
-
-The application will be available at `http://localhost:8080` (or the port specified in `SERVER_PORT`).
 
 ## API Endpoints
 
@@ -120,13 +169,80 @@ curl -X GET "http://localhost:8080/api/v1/products?page=1&limit=10" \
   -H "Authorization: Bearer <your-token>"
 ```
 
-## Deploy to AWS EC2
+## Kubernetes Deployment
+
+### Prerequisites
+
+- Kubernetes cluster (local or cloud)
+- `kubectl` configured to access your cluster
+
+### 1. Deploy to Kubernetes
+
+```bash
+# Apply all manifests (PostgreSQL + Application)
+kubectl apply -f k8s-complete.yaml
+
+# Or deploy separately
+kubectl apply -f k8s-postgres.yaml
+kubectl apply -f deployment.yaml
+```
+
+### 2. Check Deployment Status
+
+```bash
+# Check pods
+kubectl get pods
+
+# Check services
+kubectl get services
+
+# Check persistent volumes
+kubectl get pvc
+```
+
+### 3. Access the Application
+
+```bash
+# Get service URL (if using LoadBalancer)
+kubectl get service demo-service
+
+# Port forward for local access
+kubectl port-forward svc/demo-service 8080:80
+```
+
+Then access at `http://localhost:8080`
+
+### 4. View Logs
+
+```bash
+# Application logs
+kubectl logs -l app=demo-service
+
+# PostgreSQL logs
+kubectl logs -l app=postgres
+```
+
+### 5. Cleanup
+
+```bash
+kubectl delete -f k8s-complete.yaml
+```
+
+## AWS EC2 Deployment
 
 ### 1. Prepare EC2 Instance
 
 ```bash
 # Update system (Ubuntu/Debian)
 sudo apt update && sudo apt upgrade -y
+
+# Install PostgreSQL
+sudo apt install -y postgresql postgresql-contrib
+
+# Configure PostgreSQL
+sudo -u postgres psql -c "CREATE DATABASE demo;"
+sudo -u postgres psql -c "CREATE USER demo WITH PASSWORD 'demo';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE demo TO demo;"
 
 # Install Go
 wget https://go.dev/dl/go1.21.5.linux-amd64.tar.gz
@@ -138,14 +254,23 @@ echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
 mkdir -p /opt/demo-service
 ```
 
-### 2. Copy Files to Server
+### 2. Configure Database Connection
+
+Update the `.env` file with PostgreSQL connection:
+
+```bash
+# Database Configuration (PostgreSQL)
+DATABASE_URL=postgres://demo:demo@localhost:5432/demo?sslmode=disable
+```
+
+### 3. Copy Files to Server
 
 ```bash
 # From your local computer
 scp -r . user@your-ec2-ip:/opt/demo-service/
 ```
 
-### 3. Compile on Server
+### 4. Compile on Server
 
 ```bash
 cd /opt/demo-service
@@ -153,7 +278,7 @@ go mod download
 go build -o demo-service cmd/server/main.go
 ```
 
-### 4. Create systemd Service
+### 5. Create systemd Service
 
 Create file `/etc/systemd/system/demo-service.service`:
 
@@ -175,7 +300,7 @@ RestartSec=5
 WantedBy=multi-user.target
 ```
 
-### 5. Start Service
+### 6. Start Service
 
 ```bash
 sudo systemctl daemon-reload
@@ -184,7 +309,7 @@ sudo systemctl start demo-service
 sudo systemctl status demo-service
 ```
 
-### 6. Configure Nginx (optional)
+### 7. Configure Nginx (optional)
 
 Create `/etc/nginx/sites-available/demo-service`:
 
@@ -211,7 +336,7 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-### 7. Configure Security Group
+### 8. Configure Security Group
 
 Make sure the following ports are open in the EC2 Security Group:
 - 22 (SSH)
@@ -247,11 +372,12 @@ Or if running directly, logs are output to stdout/stderr.
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `SERVER_PORT` | HTTP server port | 8080 |
-| `DB_PATH` | Path to SQLite file | ./data/demo.db |
+| `DATABASE_URL` | PostgreSQL connection URL | postgres://demo:demo@localhost:5432/demo?sslmode=disable |
 | `JWT_SECRET` | Secret key for JWT | (required) |
 | `JWT_EXPIRY` | JWT token lifetime | 24h |
 | `RATE_LIMIT_RPS` | Requests per second | 10 |
 | `LOG_LEVEL` | Logging level (debug, info, warn, error) | info |
+| `LOG_FORMAT` | Log format (text, json) | text |
 
 ## Project Structure
 
@@ -266,9 +392,12 @@ demo-service/
 │   ├── model/                  # Data models
 │   ├── middleware/             # Middleware
 │   ├── metrics/                # Prometheus metrics
-│   └── database/               # Database initialization
+│   └── database/               # Database initialization (PostgreSQL)
 ├── pkg/jwt/                    # JWT utilities
-├── migrations/                 # SQL migrations
+├── docker-compose.yml          # Docker Compose setup
+├── k8s-complete.yaml           # Kubernetes manifests
+├── Dockerfile                  # Docker image
+├── go.mod                      # Go modules
 └── docs/                       # Swagger documentation
 ```
 
@@ -290,4 +419,7 @@ go test ./...
 ## License
 
 MIT
+
+
+
 

@@ -34,8 +34,7 @@ WORKDIR /app
 # Copy the binary from builder stage
 COPY --from=builder /app/main .
 
-# Copy the .env.example file as a template (can be overridden at runtime)
-COPY --from=builder /app/.env.example ./.env.example
+# Note: Create .env file from env-example.txt in the project root
 
 # Change ownership to the appuser
 RUN chown -R appuser:appuser /app
@@ -45,9 +44,6 @@ USER appuser
 
 # Expose port (default is 8080, can be changed via environment variable)
 EXPOSE 8080
-
-# Create a directory for the database if needed
-RUN mkdir -p /app/data
 
 # Command to run the executable
 CMD ["./main"]

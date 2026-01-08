@@ -49,7 +49,7 @@ func main() {
 
 	setupLogging()
 
-	if err := database.Init(config.AppConfig.DBPath); err != nil {
+	if err := database.Init(config.AppConfig.DatabaseURL); err != nil {
 		logrus.Fatalf("Failed to initialize database: %v", err)
 	}
 	defer database.Close()

@@ -167,3 +167,6 @@ func (h *ProductHandler) Delete(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+
+
+

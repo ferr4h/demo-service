@@ -76,3 +76,6 @@ func (r *UserRepository) Exists(username string) (bool, error) {
 	return count > 0, nil
 }
 
+
+
+

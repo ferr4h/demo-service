@@ -26,3 +26,6 @@ func MetricsMiddleware() gin.HandlerFunc {
 		metrics.HTTPRequestTotal.WithLabelValues(method, endpoint, status).Inc()
 	}
 }
+
+
+
